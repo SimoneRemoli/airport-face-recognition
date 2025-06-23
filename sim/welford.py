@@ -35,4 +35,3 @@ def estimate(valuesArray):
         return mean, stdev, w
     else:
         print("ERROR - insufficient data\n")
-

@@ -1,92 +1,145 @@
-import multiprocessing
+import numpy as np
 
-from DES_Python.rngs import plantSeeds, selectStream, getSeed
-from globs import hours_to_secs
-from inout import exists_in_json, append_to_json, load_from_json, extract_from_json, extract_key_values, print_ic95_fin
-from model.simulation import Simulation, ExecutionMode, split
-from plots import plot_infinite, plot_finite
-from stats import estimate
-
-arrivals_ctr = 0
-arrivals_ctr_live = 0
-
-lambdaa = 15  # richieste/s
-expparam_base = 1 / lambdaa
-expparam_fasciaoraria = -1
-
-t = None
-
-totresptimes = {}
-
-from sortedcontainers import SortedList
-
-eventlist = SortedList(key=lambda x: x.arrival_time)
-nodes = []
-
-event_balance_ctr = {"arrivals": 0, "completions": 0, "cloud_processings": 0}
-
-NPROC = 1  # per il parallelismo
-
-metrics = ["pop", "rho_edge", "rho_cloud", "rho_coord", "rt_prio", "rt_all"]
+from globs import INITIAL_SEED
+from misc.timeutils import hours_to_secs
+from sim.executor import ExecutionMode, Experiment, SchedulingPolicy
+from simio.plots import plot_inf_seq, plot_TA, plot_scaling, plot_finito
+from simio.text_output import print_verify_output
 
 
-def run_comb_inf(combination, seeds):
-    start = combination[0]
-    edge = combination[1]
-    coord = combination[2]
-    metrics = ["pop", "rho_edge", "rho_cloud", "rho_coord", "rt_prio", "rt_all"]
-    simname = f"INF-e{edge}-c{coord}-ore{start}"
-    for seed in seeds:
-        if not exists_in_json(edge, coord, seed, 0, simname + ".json"):
-            sim = Simulation(simname, ExecutionMode.INFINITE_HORIZON, lambda_base, seed,
-                             hours_to_secs(start), hours_to_secs(2), edge, coord, replicas_no=1)
-            sim.run()
+def verify():
+    pc_values = [0, 0.4]
 
+    exp = Experiment("verify-PS-single", [SchedulingPolicy.PS], [ExecutionMode.MODEL],
+                     False, INITIAL_SEED, 64, hours_to_secs(0), hours_to_secs(24), 1, 1,
+                     [1.4], pc_values, None, None)
+    exp.run()
+    print_verify_output(exp, pc_values)
+
+    exp = Experiment("verify-FIFO-multi", [SchedulingPolicy.FIFO], [ExecutionMode.MODEL],
+                     False, INITIAL_SEED, 64, hours_to_secs(0), hours_to_secs(24), 2, 2,
+                     [1.4], pc_values, None, None)
+    exp.run()
+    print_verify_output(exp, pc_values)
+
+
+def transient():
+    exp = Experiment("transient-single", [SchedulingPolicy.PS], [ExecutionMode.TRANSIENT_ANALYSIS],
+                     False, INITIAL_SEED, 5, 0, hours_to_secs(48), 1, 1,
+                     [1.4], [0.4], None, None)
+    stats = exp.run(need_return=True)
+    plot_TA(1.4, stats, name="transient-single")
+
+    exp = Experiment("transient-multi", [SchedulingPolicy.PS], [ExecutionMode.TRANSIENT_ANALYSIS],
+                     False, INITIAL_SEED, 5, 0, hours_to_secs(48), 2, 2,
+                     [1.4], [0.4], None, None)
+    stats = exp.run(need_return=True)
+    plot_TA(1.4, stats, name="transient-multi")
+
+
+def finhor_single():
+    exp = Experiment("finite-PS", [SchedulingPolicy.PS], [ExecutionMode.FINITE],
+                     False, INITIAL_SEED, 64, 0, hours_to_secs(24), 1, 1,
+                     [1.4], [0.4], None, None)
+    stats = exp.run(need_return=True)
+    plot_finito(1.4, stats, name="finito-single")
+
+
+def infhor_single():
+    exp = Experiment("infinite", [SchedulingPolicy.PS], [ExecutionMode.INFINITE_SIMULATION],
+                     False, INITIAL_SEED, 1, 0, None, 1, 1,
+                     [round(k, 1) for k in np.arange(0.1, 1.8, 0.1).tolist()], [0.4], 2048, 128)
+
+    stats = exp.run(need_return=True)
+    plot_inf_seq(stats, qos=True, name="inf-lambda")
+
+    exp = Experiment("infinite", [SchedulingPolicy.PS], [ExecutionMode.INFINITE_SIMULATION],
+                     False, INITIAL_SEED, 1, 0, None, 1, 1,
+                     [1.4], [round(k, 1) for k in np.arange(0, 1.1, 0.1).tolist()], 2048, 128)
+
+    stats = exp.run(need_return=True)
+    plot_inf_seq(stats, True, qos=True, name="inf-pc")
+
+
+def validation_single():
+    exp = Experiment("infinite", [SchedulingPolicy.PS], [ExecutionMode.INFINITE_SIMULATION],
+                     False, INITIAL_SEED, 1, 0, None, 1, 1,
+                     [1.2, 1.4, 1.6], [0.4], 2048, 128)
+    stats = exp.run(need_return=True)
+    plot_inf_seq(stats, name="validazione-single-lambda")
+    exp = Experiment("infinite", [SchedulingPolicy.PS], [ExecutionMode.INFINITE_SIMULATION],
+                     False, INITIAL_SEED, 1, 0, None, 1, 1,
+                     [1.4], [0.1, 0.4, 0.7], 2048, 128)
+    stats = exp.run(need_return=True)
+    plot_inf_seq(stats, True, name="validazione-single-pc")
+
+
+def validazione_multiserver():
+    exp = Experiment("infinite-multi2", [SchedulingPolicy.PS], [ExecutionMode.INFINITE_SIMULATION],
+                     False, INITIAL_SEED, 1, 0, None, 2, 2,
+                     [1.1, 1.4, 1.7], [0.4], 2048, 128)
+    stats = exp.run(need_return=True)
+    plot_inf_seq(stats, name="valida-multi-lambda")
+    exp = Experiment("infinite-multi2", [SchedulingPolicy.PS], [ExecutionMode.INFINITE_SIMULATION],
+                     False, INITIAL_SEED, 1, 0, None, 2, 2,
+                     [1.4], [0.2, 0.4, 0.6], 2048, 128)
+    stats = exp.run(need_return=True)
+    plot_inf_seq(stats, True, name="valida-multi-pc")
+
+
+def finhor_multi_scaling():
+    exp = Experiment("provascaling-new-pc1", [SchedulingPolicy.PS], [ExecutionMode.FINITE],
+                     True, INITIAL_SEED, 64, hours_to_secs(0), hours_to_secs(24), 1, 4,
+                     [1.4], [0.4], None, None)
+    stats = exp.run(need_return=True)
+    plot_finito(1.4, stats, qos=False, fasce=True, name="scaling-fin")
+    plot_scaling(stats)
+
+    exp = Experiment("provascaling-new-pc1", [SchedulingPolicy.PS], [ExecutionMode.FINITE],
+                     True, INITIAL_SEED, 64, hours_to_secs(0), hours_to_secs(24), 1, 4,
+                     [1.4], [1], None, None)
+    stats = exp.run(need_return=True)
+    plot_finito(1.4, stats, qos=False, fasce=True, name="scaling-fin-pc1")
+    plot_scaling(stats, name="pc1")
+
+
+def display_menu():
+    print("***** PMCSN project *****")
+    print("--- Choose a Function ---")
+    print("1. Verify (both base and scalable)")
+    print("2. Validation (base)")
+    print("3. Validation (scalable)")
+    print("4. Transient analysis")
+    print("5. Finite horizon (base)")
+    print("6. Infinite horizon (base)")
+    print("7. Finite horizon (scalable)")
+    print("0. Exit")
+    print("-------------------------\n")
+
+
+def main():
+    functions = {
+        '1': verify,
+        '2': validation_single,
+        '3': validazione_multiserver,
+        '4': transient,
+        '5': finhor_single,
+        '6': infhor_single,
+        '7': finhor_multi_scaling,
+    }
+
+    while True:
+        display_menu()
+        choice = input("Enter your choice: ")
+
+        if choice == '0':
+            print("Quitting...")
+            break
+        elif choice in functions:
+            functions[choice]()
         else:
-            print("skipped already run simulation", simname)
+            print("Invalid choice. Please try again.")
 
 
-def run_comb_fin(coppia):
-    edge = coppia[0]
-    coord = coppia[1]
-    metrics = ["pop", "rho_edge", "rho_cloud", "rho_coord", "rt_prio", "rt_all"]
-    simname = f"FIN-e{edge}-c{coord}"
-    if not exists_in_json(edge, coord, 123456789, 0, simname + ".json"):
-        sim = Simulation(simname, ExecutionMode.FINITE_HORIZON, lambda_base, 123456789,
-                         hours_to_secs(6), hours_to_secs(24), edge, coord, replicas_no=64)
-        sim.run()
-    else:
-        print("skipped already run simulation", simname)
-
-
-def infinite_horizon_sim(comblist):
-    print("Starting infinite horizon simulations...")
-    seeds_inf = [123456789, 987654321, 246814421, 135792468]
-
-    for terna in comblist:
-        run_comb_inf(terna, seeds_inf)
-        plot_infinite(terna, seeds_inf)
-
-    print("... done.")
-
-
-def finite_horizon_sim(comblist):
-    print("Starting finite horizon simulations...")
-    for coppia in comblist:
-        run_comb_fin(coppia)
-        plot_finite(coppia)
-    print("... done")
-
-
-if __name__ == '__main__':
-    lambda_base = 15  # reqs/s
-
-    # each sublist is [starttime, edge_no, cloud_no]
-    infinite_horizon_comblist = [[6, 15, 2], [6, 19, 4], [6, 19, 8], [12, 16, 4], [12, 16, 7], [18, 19, 5], [18, 23, 9],
-                                 [0, 5, 3], [0, 7, 3]]
-
-    # each sublist is [edge_no, cloud_no]
-    finite_horizon_comblist = [[23, 9]]
-
-    infinite_horizon_sim(infinite_horizon_comblist)
-    finite_horizon_sim(finite_horizon_comblist)
+if __name__ == "__main__":
+    main()

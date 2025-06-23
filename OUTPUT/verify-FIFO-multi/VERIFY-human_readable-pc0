@@ -1,0 +1,11 @@
+name	expected	result				verified
+E_rho 	 0.35 	 0.0 	+/-	 0.0 False
+E_S 	 0.25 	 0.0 	+/-	 0.0 False
+E_Si 	 0.5 	 0.0 	+/-	 0.0 False
+E_Tq 	 0.0698 	 0.0 	+/-	 0.0 False
+E_Ts 	 0.5698 	 0.0 	+/-	 0.0 False
+E_Nq 	 0.09772 	 0.0 	+/-	 0.0 False
+E_Ns 	 0.79772 	 0.0 	+/-	 0.0 False
+C_S 	 0 	 0.0 	+/-	 0.0 True
+C_Ns 	 0 	 0.0 	+/-	 0.0 True
+pc 	 0 	 0.0 	+/-	 0.0 True
