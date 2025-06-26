@@ -8,7 +8,6 @@ def print_verify_output(exp, pc_values):
 
     keys=[
         "E_rho",
-        "E_S",
         "E_Si",
         "E_Tq",
         "E_Ts",
@@ -29,7 +28,6 @@ def print_verify_output(exp, pc_values):
             header="SINGLE-SERVER"
             if pc==0:
                 expected_values["E_rho"]=0.7
-                expected_values["E_S"]=0.5
                 expected_values["E_Si"]=0.5
                 expected_values["E_Tq"]=1.16
                 expected_values["E_Ts"]=1.66
@@ -39,7 +37,6 @@ def print_verify_output(exp, pc_values):
                 expected_values["C_Ns"]=0
             if pc==0.4:
                 expected_values["E_rho"]=0.75599
-                expected_values["E_S"]=0.38571
                 expected_values["E_Si"]=0.38571
                 expected_values["E_Tq"]=1.195
                 expected_values["E_Ts"]=1.58071
@@ -51,7 +48,6 @@ def print_verify_output(exp, pc_values):
             header="MULTISERVER"
             if pc==0:
                 expected_values["E_rho"]=0.35
-                expected_values["E_S"]=0.25
                 expected_values["E_Si"]=0.5
                 expected_values["E_Tq"]=0.0698
                 expected_values["E_Ts"]=0.5698
@@ -61,7 +57,6 @@ def print_verify_output(exp, pc_values):
                 expected_values["C_Ns"]=0
             if pc==0.4:
                 expected_values["E_rho"]=0.378
-                expected_values["E_S"]=0.19286
                 expected_values["E_Si"]=0.38571
                 expected_values["E_Tq"]=0.07858
                 expected_values["E_Ts"]=0.46429

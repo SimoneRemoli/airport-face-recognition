@@ -13,13 +13,13 @@ def verify():
     exp = Experiment("verify-PS-single", [SchedulingPolicy.PS], [ExecutionMode.MODEL],
                      False, INITIAL_SEED, 64, hours_to_secs(0), hours_to_secs(24), 1, 1,
                      [1.4], pc_values, None, None)
-    exp.run()
+    exp.run(need_return=True)
     print_verify_output(exp, pc_values)
 
     exp = Experiment("verify-FIFO-multi", [SchedulingPolicy.FIFO], [ExecutionMode.MODEL],
                      False, INITIAL_SEED, 64, hours_to_secs(0), hours_to_secs(24), 2, 2,
                      [1.4], pc_values, None, None)
-    exp.run()
+    exp.run(need_return=True)
     print_verify_output(exp, pc_values)
 
 
