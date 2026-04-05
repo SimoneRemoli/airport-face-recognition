@@ -272,3 +272,134 @@ python3 -m pip show matplotlib scipy opencv-python numpy
 - This is a local prototype, not a production-grade biometric security system.
 - The recognition pipeline currently uses OpenCV face detection plus handcrafted face descriptors.
 - Good lighting and a stable frontal face position improve recognition quality.
+
+## Curiosities About The Shell Scripts
+
+This section explains exactly what is inside `setup.sh` and `run.sh`, and what each instruction means.
+
+### Content of `setup.sh`
+
+```bash
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "$ROOT_DIR"
+
+mkdir -p .mplconfig .cache plots data/faces OUTPUT
+
+python3 -m pip install -r requirements.txt
+
+echo
+echo "Setup completed."
+echo "Run the app with:"
+echo "python3 main.py"
+```
+
+#### What each instruction means in `setup.sh`
+
+- `#!/usr/bin/env bash`
+  Tells the operating system to execute the script using `bash`.
+- `set -euo pipefail`
+  Enables a safer shell mode.
+- `-e`
+  Stops the script immediately if a command fails.
+- `-u`
+  Stops the script if an undefined variable is used.
+- `pipefail`
+  Makes pipelines fail if any command inside them fails.
+- `ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`
+  Computes the absolute path of the directory where the script is located.
+- `${BASH_SOURCE[0]}`
+  Refers to the current script file.
+- `dirname "${BASH_SOURCE[0]}"`
+  Extracts the directory that contains the script.
+- `cd ... && pwd`
+  Moves into that directory and prints its absolute path.
+- `ROOT_DIR=...`
+  Stores that absolute path in the variable `ROOT_DIR`.
+- `cd "$ROOT_DIR"`
+  Moves into the root folder of the project.
+- `mkdir -p .mplconfig .cache plots data/faces OUTPUT`
+  Creates the directories used by the project if they do not already exist.
+- `mkdir`
+  Creates directories.
+- `-p`
+  Prevents errors if a directory already exists and creates parent directories when needed.
+- `.mplconfig`
+  Used by `matplotlib` for configuration and cache files.
+- `.cache`
+  Generic local cache directory.
+- `plots`
+  Directory originally used for generated plot files.
+- `data/faces`
+  Directory used to store saved face samples.
+- `OUTPUT`
+  Directory originally used by the legacy simulation output.
+- `python3 -m pip install -r requirements.txt`
+  Installs all required Python packages listed in `requirements.txt`.
+- `python3 -m pip`
+  Runs `pip` through the current Python 3 interpreter.
+- `install`
+  Tells `pip` to install packages.
+- `-r requirements.txt`
+  Reads the list of packages from the `requirements.txt` file.
+- `echo`
+  Prints a blank line.
+- `echo "Setup completed."`
+  Prints a confirmation message.
+- `echo "Run the app with:"`
+  Prints an instruction line.
+- `echo "python3 main.py"`
+  Prints the manual command used to start the application.
+
+### Content of `run.sh`
+
+```bash
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd "$ROOT_DIR"
+
+mkdir -p .mplconfig .cache plots data/faces OUTPUT
+
+python3 main.py
+```
+
+#### What each instruction means in `run.sh`
+
+- `#!/usr/bin/env bash`
+  Tells the operating system to execute the script using `bash`.
+- `set -euo pipefail`
+  Enables a safer shell mode.
+- `-e`
+  Stops the script if a command fails.
+- `-u`
+  Stops the script if an undefined variable is used.
+- `pipefail`
+  Makes pipelines fail if any command inside them fails.
+- `ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`
+  Computes the absolute path of the directory where `run.sh` is located.
+- `${BASH_SOURCE[0]}`
+  Refers to the current script.
+- `dirname "${BASH_SOURCE[0]}"`
+  Extracts the folder containing the script.
+- `cd ... && pwd`
+  Moves there and prints the absolute path.
+- `ROOT_DIR=...`
+  Saves that path into the variable `ROOT_DIR`.
+- `cd "$ROOT_DIR"`
+  Moves into the project root.
+- `mkdir -p .mplconfig .cache plots data/faces OUTPUT`
+  Creates the local folders required by the project if they are missing.
+- `python3 main.py`
+  Starts the application.
+- `python3`
+  Launches the Python 3 interpreter.
+- `main.py`
+  Runs the main entry point of the project.
