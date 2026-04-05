@@ -18,6 +18,17 @@ To run the project you need:
 - a working webcam
 - webcam permissions enabled for the terminal or editor you are using
 
+Before running `./setup.sh`, make sure that Python 3 is already installed on your system and that `pip` is available through `python3`.
+
+You can verify this with:
+
+```bash
+python3 --version
+python3 -m pip --version
+```
+
+If both commands return a valid version, you can continue with the setup script.
+
 ## Python Libraries Required
 
 Before running the project, these Python libraries must be installed:
@@ -73,6 +84,14 @@ This script:
 - moves into the project folder
 - creates the folders needed by the project
 - installs all Python dependencies from `requirements.txt`
+
+The expected execution flow is:
+
+```bash
+python3 --version
+python3 -m pip --version
+./setup.sh
+```
 
 The folders created are:
 
