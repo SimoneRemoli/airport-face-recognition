@@ -29,6 +29,65 @@ python3 -m pip --version
 
 If both commands return a valid version, you can continue with the setup script.
 
+If `python3` is not installed, you must install it before running the project.
+
+### Install Python 3 on macOS
+
+If you use Homebrew, install Python with:
+
+```bash
+brew install python
+```
+
+Then verify the installation:
+
+```bash
+python3 --version
+python3 -m pip --version
+```
+
+### Install Python 3 on Linux
+
+On Debian/Ubuntu-based systems:
+
+```bash
+sudo apt update
+sudo apt install python3 python3-pip
+```
+
+Then verify the installation:
+
+```bash
+python3 --version
+python3 -m pip --version
+```
+
+On Fedora:
+
+```bash
+sudo dnf install python3 python3-pip
+```
+
+Then verify the installation:
+
+```bash
+python3 --version
+python3 -m pip --version
+```
+
+On Arch Linux:
+
+```bash
+sudo pacman -S python python-pip
+```
+
+Then verify the installation:
+
+```bash
+python3 --version
+python3 -m pip --version
+```
+
 ## Python Libraries Required
 
 Before running the project, these Python libraries must be installed:
