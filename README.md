@@ -320,6 +320,11 @@ echo "python3 main.py"
   Moves into that directory and prints its absolute path.
 - `ROOT_DIR=...`
   Stores that absolute path in the variable `ROOT_DIR`.
+- Example:
+  If `setup.sh` is located at `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition/setup.sh`, then:
+  `${BASH_SOURCE[0]}` becomes `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition/setup.sh`,
+  `dirname "${BASH_SOURCE[0]}"` becomes `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition`,
+  and `ROOT_DIR` is finally set to `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition`.
 - `cd "$ROOT_DIR"`
   Moves into the root folder of the project.
 - `mkdir -p .mplconfig .cache plots data/faces OUTPUT`
@@ -393,6 +398,11 @@ python3 main.py
   Moves there and prints the absolute path.
 - `ROOT_DIR=...`
   Saves that path into the variable `ROOT_DIR`.
+- Example:
+  If `run.sh` is located at `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition/run.sh`, then:
+  `${BASH_SOURCE[0]}` becomes `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition/run.sh`,
+  `dirname "${BASH_SOURCE[0]}"` becomes `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition`,
+  and `ROOT_DIR` is finally set to `/Users/simoneremoli/PYTHON_VIRTUAL_WORLD/airport-face-recognition`.
 - `cd "$ROOT_DIR"`
   Moves into the project root.
 - `mkdir -p .mplconfig .cache plots data/faces OUTPUT`
